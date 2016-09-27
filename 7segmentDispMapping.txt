@@ -1,0 +1,32 @@
+Common Cathode
+
+PIN 8,9,12 = Cathodes
+
+PIN 11 = A      V
+PIN 7  = B      V
+PIN 4  = C      V
+PIN 2  = D      V
+PIN 1  = E      V
+PIN 10 = F      V
+PIN 5  = G      V
+PIN 3  = Decimal Point DP V
+
+
+12 11 10  9  8  7
+ |  |  |  |  |  |
+ ----------------
+|                |
+ ----------------
+ |  |  |  |  |  |
+ 1  2  3  4  5  6
+
+
+     a
+   f   b
+     g
+   e   c
+     d    dp
+   _
+  |_|
+  |_|.
+
