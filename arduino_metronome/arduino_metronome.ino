@@ -24,21 +24,30 @@ const int cathode8 = 8;
 const int cathode9 = 9;
 const int cathode12 = 12;
 
-const int firstDigit = 12;
-const int secondDigit = 9;
-const int thirdDigit = 8;
+const int firstDigit = cathode12;
+const int secondDigit = cathode9;
+const int thirdDigit = cathode8;
+
+long lastDPstateChangeMillis = 0;
+
+/* Used to determine if the DPs should be on or off
+   depending on state of the "beat cycle" */
+bool isDPtoBeLit = true;
+
+/* tempo in beats per minute */
+byte tempo = 120;
 
 /* prototype of method calls to be scheduled */
-void setNumber(int numberToDisplay, int ordinalNumberOfDigit);
+void updateFirstDigit();
+void updateSecondDigit();
+void updateThirdDigit();
+void updateDPstate();
 
 Scheduler scheduler;
-Task updateFirstDigit();
-Task updateSecondDigit();
-Task updateThirdDigit();
-
-// Generally, you should use "unsigned long" for variables that hold time
-// The value will quickly become too large for an int to store
-unsigned long previousMillis = 0;        // will store last time LED was updated
+Task updateFirst(1, TASK_FOREVER, &updateFirstDigit);
+Task updateSecond(1, TASK_FOREVER, &updateSecondDigit);
+Task updateThird(1, TASK_FOREVER, &updateThirdDigit);
+Task updateDP(1, TASK_FOREVER, &updateDPstate);
 
 void setup() {
   /* Set mode of anode and cathode pins */
@@ -57,7 +66,19 @@ void setup() {
 
   resetAnodesCathodes();
 
-  //Serial.begin(9600);  
+  /* Insert display demo at for upstart */
+  /* e.g. HEJ ... |_ |_ |_ ... _| _| _| ... */
+
+  scheduler.init();
+  scheduler.addTask(updateFirst);
+  scheduler.addTask(updateSecond);
+  scheduler.addTask(updateThird);
+  scheduler.addTask(updateDP);
+
+  updateFirst.enable();
+  updateSecond.enable();
+  updateThird.enable();
+  updateDP.enable();
 }
 
 void resetAnodesCathodes() {
@@ -77,18 +98,28 @@ void resetAnodesCathodes() {
 }
 
 void loop() {
-    
-    int test = 995;
-    int thirdNumber = test % 10;
-    int secondNumber = test % 100 / 10;
-    int firstNumber = test % 1000 / 100;
+  scheduler.execute();
+}
 
-    setNumber(firstNumber, firstDigit);
-    delayMicroseconds(250);
-    setNumber(secondNumber, secondDigit);
-    delayMicroseconds(250);
-    setNumber(thirdNumber, thirdDigit);
-    delayMicroseconds(250);
+void updateFirstDigit() {
+  int firstNumber = tempo % 1000 / 100;
+  setNumber(firstNumber, firstDigit);
+}
+
+void updateSecondDigit() {
+  int secondNumber = tempo % 100 / 10;
+  setNumber(secondNumber, secondDigit);
+}
+void updateThirdDigit() {
+  int thirdNumber = tempo % 10;
+  setNumber(thirdNumber, thirdDigit);
+}
+
+void updateDPstate() {
+  if (millis() - lastDPstateChangeMillis >= tempoToFrequencyInMillis(tempo)) {
+    isDPtoBeLit = !isDPtoBeLit;
+    lastDPstateChangeMillis = millis();
+  }
 }
 
 void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
@@ -168,6 +199,15 @@ void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
         break;
     }
 
+    if (isDPtoBeLit) {
+        digitalWrite(DP,HIGH);
+      }
+
     digitalWrite(ordinalNumberOfDigit, LOW);
 }
 
+int tempoToFrequencyInMillis(int bpm) {
+    /* 60 seconds in millis, divided by the tempo in BPM, divided by two
+    gives the on/off time interval for tempo indicator */
+    return 60000/bpm/2;
+  }
