@@ -1,5 +1,3 @@
-#include <TaskScheduler.h>
-
 /* Initial scratch for a 3 digit, 7 segment LED display driver */
 
 const int anode1 = 6;
@@ -48,24 +46,6 @@ unsigned long lastTimeButtonPressed;
 or time between registered presses when button is held down*/
 const int intervalButtonPress = 200;
 
-
-
-/* Prototypes of method calls to be scheduled */
-void updateFirstDigit();
-void updateSecondDigit();
-void updateThirdDigit();
-void updateDPstate();
-//void readSubtractButton();
-//void readAddButton();
-
-Scheduler scheduler;
-Task updateFirst(1, TASK_FOREVER, &updateFirstDigit);
-Task updateSecond(1, TASK_FOREVER, &updateSecondDigit);
-Task updateThird(1, TASK_FOREVER, &updateThirdDigit);
-Task updateDP(1, TASK_FOREVER, &updateDPstate);
-//Task readSubtract(100, TASK_FOREVER, &readSubtractButton);
-//Task readAdd(100, TASK_FOREVER, &readAddButton);
-
 void setup() {
   /* Set mode of anode and cathode pins */
   pinMode(anode1, OUTPUT);
@@ -81,29 +61,14 @@ void setup() {
   pinMode(cathode9, OUTPUT);
   pinMode(cathode12, OUTPUT);
 
-  //pinMode(subtractButton, INPUT);
+  pinMode(subtractButton, INPUT);
   pinMode(addButton, INPUT);
-  digitalWrite(addButton, LOW);
 
   resetAnodesCathodes();
 
   /* Insert display demo at for upstart */
   /* e.g. HEJ ... |_ |_ |_ ... _| _| _| ... */
 
-  scheduler.init();
-  scheduler.addTask(updateFirst);
-  scheduler.addTask(updateSecond);
-  scheduler.addTask(updateThird);
-  scheduler.addTask(updateDP);
-  //scheduler.addTask(readSubtract);
-  //scheduler.addTask(readAdd);
-
-  updateFirst.enable();
-  updateSecond.enable();
-  updateThird.enable();
-  updateDP.enable();
-  //readSubtract.enable();
-  //readAdd.enable();
 }
 
 void resetAnodesCathodes() {
@@ -123,11 +88,10 @@ void resetAnodesCathodes() {
 }
 
 void loop() {
-  scheduler.execute();
-  //updateFirstDigit();
-  //updateSecondDigit();
-  //updateThirdDigit();
-  //updateDPstate();
+  updateFirstDigit();
+  updateSecondDigit();
+  updateThirdDigit();
+  updateDPstate();
   readSubtractButton();
   readAddButton();
 }
