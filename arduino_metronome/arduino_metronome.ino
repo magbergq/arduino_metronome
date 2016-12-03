@@ -10,6 +10,8 @@ const int anode5 = 5;
 const int anode7 = 7;
 const int anode10 = 10;
 const int anode11 = 11;
+//const int subtractButton = A0;
+const int addButton = A1;
 
 const int E = 6;
 const int D = 2;
@@ -35,19 +37,23 @@ long lastDPstateChangeMillis = 0;
 bool isDPtoBeLit = true;
 
 /* tempo in beats per minute */
-byte tempo = 120;
+int tempo = 120;
 
 /* prototype of method calls to be scheduled */
 void updateFirstDigit();
 void updateSecondDigit();
 void updateThirdDigit();
 void updateDPstate();
+//void readSubtractButton();
+//void readAddButton();
 
 Scheduler scheduler;
 Task updateFirst(1, TASK_FOREVER, &updateFirstDigit);
 Task updateSecond(1, TASK_FOREVER, &updateSecondDigit);
 Task updateThird(1, TASK_FOREVER, &updateThirdDigit);
 Task updateDP(1, TASK_FOREVER, &updateDPstate);
+//Task readSubtract(100, TASK_FOREVER, &readSubtractButton);
+//Task readAdd(100, TASK_FOREVER, &readAddButton);
 
 void setup() {
   /* Set mode of anode and cathode pins */
@@ -64,6 +70,10 @@ void setup() {
   pinMode(cathode9, OUTPUT);
   pinMode(cathode12, OUTPUT);
 
+  //pinMode(subtractButton, INPUT);
+  pinMode(addButton, INPUT);
+  digitalWrite(addButton, LOW);
+
   resetAnodesCathodes();
 
   /* Insert display demo at for upstart */
@@ -74,11 +84,15 @@ void setup() {
   scheduler.addTask(updateSecond);
   scheduler.addTask(updateThird);
   scheduler.addTask(updateDP);
+  //scheduler.addTask(readSubtract);
+  //scheduler.addTask(readAdd);
 
   updateFirst.enable();
   updateSecond.enable();
   updateThird.enable();
   updateDP.enable();
+  //readSubtract.enable();
+  //readAdd.enable();
 }
 
 void resetAnodesCathodes() {
@@ -99,6 +113,11 @@ void resetAnodesCathodes() {
 
 void loop() {
   scheduler.execute();
+  //updateFirstDigit();
+  //updateSecondDigit();
+  //updateThirdDigit();
+  //updateDPstate();
+  readAddButton();
 }
 
 void updateFirstDigit() {
@@ -120,6 +139,19 @@ void updateDPstate() {
     isDPtoBeLit = !isDPtoBeLit;
     lastDPstateChangeMillis = millis();
   }
+}
+
+/*void readSubtractButton() {
+  if (digitalRead(subtractButton == HIGH)) {
+      tempo -= 2;
+    }
+}*/
+
+void readAddButton() {
+  if (digitalRead(addButton) == HIGH) {
+      delay(200);
+      tempo += 2;
+    }
 }
 
 void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
