@@ -10,7 +10,7 @@ const int anode5 = 5;
 const int anode7 = 7;
 const int anode10 = 10;
 const int anode11 = 11;
-//const int subtractButton = A0;
+const int subtractButton = A0;
 const int addButton = A1;
 
 const int E = 6;
@@ -30,16 +30,27 @@ const int firstDigit = cathode12;
 const int secondDigit = cathode9;
 const int thirdDigit = cathode8;
 
-long lastDPstateChangeMillis = 0;
+unsigned long lastDPstateChangeMillis = 0;
 
 /* Used to determine if the DPs should be on or off
    depending on state of the "beat cycle" */
 bool isDPtoBeLit = true;
 
-/* tempo in beats per minute */
+/* Tempo in beats per minute */
 int tempo = 120;
+const int minTempo = 60;
+const int maxTempo = 220;
 
-/* prototype of method calls to be scheduled */
+/* Timestamp when a button was last pressed */
+unsigned long lastTimeButtonPressed;
+
+/* No. of milliseconds between allowed button presses, 
+or time between registered presses when button is held down*/
+const int intervalButtonPress = 200;
+
+
+
+/* Prototypes of method calls to be scheduled */
 void updateFirstDigit();
 void updateSecondDigit();
 void updateThirdDigit();
@@ -117,6 +128,7 @@ void loop() {
   //updateSecondDigit();
   //updateThirdDigit();
   //updateDPstate();
+  readSubtractButton();
   readAddButton();
 }
 
@@ -141,16 +153,21 @@ void updateDPstate() {
   }
 }
 
-/*void readSubtractButton() {
-  if (digitalRead(subtractButton == HIGH)) {
-      tempo -= 2;
+void readSubtractButton() {
+  if (digitalRead(subtractButton) == HIGH && millis() - lastTimeButtonPressed >= intervalButtonPress) {
+      if (tempo > minTempo) {
+        tempo -= 2;
+        lastTimeButtonPressed = millis();
+      }
     }
-}*/
+}
 
 void readAddButton() {
-  if (digitalRead(addButton) == HIGH) {
-      delay(200);
-      tempo += 2;
+  if (digitalRead(addButton) == HIGH && millis() - lastTimeButtonPressed >= intervalButtonPress) {
+      if (tempo < maxTempo) {
+        tempo += 2;
+        lastTimeButtonPressed = millis();
+      }
     }
 }
 
