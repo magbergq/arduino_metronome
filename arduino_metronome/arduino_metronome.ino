@@ -1,4 +1,4 @@
-/* Initial scratch for a 3 digit, 7 segment LED display driver */
+/* For a 3 digit, 7 segment LED display driver and two buttons */
 
 const int anode1 = 6;
 const int anode2 = 2;
@@ -147,7 +147,6 @@ void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
     
     switch(numberToDisplay) {
       case 1:
-        //Serial.print("Woohaaa!");
         digitalWrite(B, HIGH);
         digitalWrite(C, HIGH);
         break;
