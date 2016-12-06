@@ -64,10 +64,13 @@ void setup() {
   pinMode(subtractButton, INPUT);
   pinMode(addButton, INPUT);
 
-  resetAnodesCathodes();
+  for(int i = 0 ; i < 24 ; i++) {
+    introAnimation(i%6);
+    delay(120);
+  }
+  
 
-  /* Insert display demo at for upstart */
-  /* e.g. HEJ ... |_ |_ |_ ... _| _| _| ... */
+  resetAnodesCathodes();
 
 }
 
@@ -137,6 +140,9 @@ void readAddButton() {
 
 void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
 
+    /* Dealy of 2ms before resetting anodes and cathodes to avoid
+       reduced brightness of display due to to high update frequency */
+    delay(2);
     resetAnodesCathodes();
     
     switch(numberToDisplay) {
@@ -217,6 +223,45 @@ void setNumber(int numberToDisplay, int ordinalNumberOfDigit) {
       }
 
     digitalWrite(ordinalNumberOfDigit, LOW);
+}
+
+void introAnimation(int position) {
+    
+    resetAnodesCathodes();
+    switch(position) {
+      case 0:
+        digitalWrite(A,HIGH);
+        digitalWrite(B,HIGH);
+        break;
+      case 1:
+        digitalWrite(B,HIGH);
+        digitalWrite(C,HIGH);
+        break;
+      case 2:
+        digitalWrite(C,HIGH);
+        digitalWrite(D,HIGH);
+        break;
+      case 3:
+        digitalWrite(D,HIGH);
+        digitalWrite(E,HIGH);
+        break;
+      case 4:
+        digitalWrite(E,HIGH);
+        digitalWrite(F,HIGH);
+        break;
+      case 5:
+        digitalWrite(F,HIGH);
+        digitalWrite(A,HIGH);
+        break;
+      default:
+        //do nothing
+        break;
+    }
+    
+    digitalWrite(firstDigit, LOW);
+    digitalWrite(secondDigit, LOW);
+    digitalWrite(thirdDigit, LOW);
+    
 }
 
 int tempoToFrequencyInMillis(int bpm) {
